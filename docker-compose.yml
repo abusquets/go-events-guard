@@ -1,0 +1,123 @@
+version: "3.7"
+services:
+  api:
+    container_name: eventsguard-api
+    build:
+      context: .
+      target: dev
+    # env_file:
+    #   - app.env
+    volumes:
+      - .:/app:cached
+      - go_cache:/go/pkg/mod:delegated
+    ports:
+      - 8082:8082
+      - 2345:2345
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    depends_on:
+      - mongo1
+      - redis
+    environment:
+      - SERVER_PORT=8082
+      - REDIS_URL=redis:6379
+      - MONGODB_URI=mongodb://admin:admin@mongo1:27017,mongo2:27017/eventsguard?authSource=admin&replicaSet=rs0&readPreference=secondary
+      - MONGODB_DB=eventsguard
+    command:
+      - |
+        air -c .air.toml
+    healthcheck:
+      test: ["CMD", "go", "run", "-exec", "package main; import (\"net/http\"; \"os\"; \"time\"); func main() { client := http.Client{Timeout: 30 * time.Second}; resp, err := client.Get(\"http://localhost/health\"); if err != nil || resp.StatusCode != http.StatusOK { os.Exit(1) }; os.Exit(0) }"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  mongo1:
+    image: mongo:latest
+    container_name: mongo1
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongo-keyfile"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo1:27017'},{_id:1,host:'mongo2:27017'}]}) }" | mongosh --port 27017 -u admin -p admin --authenticationDatabase admin --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - mongo1_data:/data/db
+      - ./mongo-keyfile:/etc/mongo-keyfile:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+
+  mongo2:
+    image: mongo:latest
+    container_name: mongo2
+    volumes:
+      - mongo2_data:/data/db
+      - ./mongo-keyfile:/etc/mongo-keyfile:ro
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongo-keyfile"]
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      retries: 5
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+
+  # htpp://localhost:8083
+  # admin:pass
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - 8083:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=admin
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:admin@mongo1:27017,mongo2:27017/?replicaSet=rs0&readPreference=nearest
+    depends_on:
+      - mongo1
+      - mongo2
+
+
+  # rabbit:
+  #   container_name: rabbit
+  #   image: rabbitmq:3.10.5-management-alpine
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: admin
+  #     RABBITMQ_DEFAULT_PASS: 1234
+  #     RABBITMQ_DEFAULT_VHOST: test
+  #     RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error}] -rabbitmq_management"
+
+  #   ports:
+  #     - 5672:5672 # AMQP protocol port
+  #     - 15672:15672 # HTTP management UI
+  #   volumes:
+  #     - rabbit_data:/var/lib/rabbitmq/mnesia:delegated # Persistent local volume
+  #     - ./rabbit.conf:/etc/rabbitmq/rabbitmq.conf # RabbitMQ configuration file
+
+  redis:
+    container_name: eventsguard-redis
+    image: redis:latest
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD-redis}
+    command:
+      - /bin/sh
+      - -c
+      # - redis-server --appendonly yes --requirepass $$REDIS_PASSWORD
+      - redis-server --appendonly yes
+    volumes:
+      - redis_data:/data:delegated
+    ports:
+      - "6380:6379"
+
+
+volumes:
+  # pg_data:
+  go_cache:
+  # rabbit_data:
+  mongo1_data:
+  mongo2_data:
+  redis_data:
