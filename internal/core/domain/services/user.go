@@ -65,7 +65,7 @@ func (us userService) UpdatePartialUser(
 	}
 	user, error := us.userRepository.UpdatePartialUser(ctx, ID, userData)
 	if error == nil {
-		us.asignalsBus.AfterTransaction("user:updated", user.ID)
+		us.asignalsBus.Emit("user:updated", user.ID)
 	}
 	return user, error
 }

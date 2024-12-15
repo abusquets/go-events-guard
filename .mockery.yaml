@@ -1,0 +1,21 @@
+with-expecter: true
+packages:
+    eventsguard/internal/auth/domain/ports/usecases:
+        config:
+            dir: "{{.InterfaceDirRelative}}/mocks"
+            filename: "{{.InterfaceName}}.go"
+            outpkg: "mocks"
+        interfaces:
+            LoginUseCase:
+                config:
+            LogoutUseCase:
+                config:
+
+    eventsguard/internal/core/domain/ports/repositories:
+        config:
+            dir: "{{.InterfaceDirRelative}}/mocks"
+            filename: "{{.InterfaceName}}.go"
+            outpkg: "mocks"
+        interfaces:
+            ClientRepository:
+                config:

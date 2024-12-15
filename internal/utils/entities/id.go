@@ -19,13 +19,21 @@ func (id ID) String() string {
 	return string(id)
 }
 
+// func (id ID) MarshalBSONValue() (bsontype.Type, []byte, error) {
+// 	objID, err := primitive.ObjectIDFromHex(string(id))
+// 	if err != nil {
+// 		return bson.TypeNull, nil, err // Canviem bsontype.Null per bson.TypeNull
+// 	}
+
+// 	// Retornem l'ObjectID com a tipus BSON ObjectID
+// 	return bson.TypeObjectID, objID[:], nil
+// }
+
 func (id ID) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	objID, err := primitive.ObjectIDFromHex(string(id))
 	if err != nil {
-		return bson.TypeNull, nil, err // Canviem bsontype.Null per bson.TypeNull
+		return bson.TypeNull, nil, err
 	}
-
-	// Retornem l'ObjectID com a tipus BSON ObjectID
 	return bson.TypeObjectID, objID[:], nil
 }
 

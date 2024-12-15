@@ -55,3 +55,10 @@ func NewPermissionDeniedError(message string) *AppError {
 		Code:    http.StatusForbidden,
 	}
 }
+
+func NewAuthError(message string) *AppError {
+	return &AppError{
+		Message: message,
+		Code:    http.StatusUnauthorized,
+	}
+}

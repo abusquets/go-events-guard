@@ -5,17 +5,12 @@ services:
     build:
       context: .
       target: dev
-    # env_file:
-    #   - app.env
     volumes:
       - .:/app:cached
       - go_cache:/go/pkg/mod:delegated
     ports:
       - 8082:8082
       - 2345:2345
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
     depends_on:
       - mongo1
       - redis
@@ -81,23 +76,6 @@ services:
       - mongo1
       - mongo2
 
-
-  # rabbit:
-  #   container_name: rabbit
-  #   image: rabbitmq:3.10.5-management-alpine
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: admin
-  #     RABBITMQ_DEFAULT_PASS: 1234
-  #     RABBITMQ_DEFAULT_VHOST: test
-  #     RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error}] -rabbitmq_management"
-
-  #   ports:
-  #     - 5672:5672 # AMQP protocol port
-  #     - 15672:15672 # HTTP management UI
-  #   volumes:
-  #     - rabbit_data:/var/lib/rabbitmq/mnesia:delegated # Persistent local volume
-  #     - ./rabbit.conf:/etc/rabbitmq/rabbitmq.conf # RabbitMQ configuration file
-
   redis:
     container_name: eventsguard-redis
     image: redis:latest
@@ -106,7 +84,6 @@ services:
     command:
       - /bin/sh
       - -c
-      # - redis-server --appendonly yes --requirepass $$REDIS_PASSWORD
       - redis-server --appendonly yes
     volumes:
       - redis_data:/data:delegated
@@ -115,9 +92,7 @@ services:
 
 
 volumes:
-  # pg_data:
   go_cache:
-  # rabbit_data:
   mongo1_data:
   mongo2_data:
   redis_data:

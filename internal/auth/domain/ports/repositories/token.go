@@ -7,6 +7,7 @@ import (
 	"eventsguard/internal/auth/dtos"
 )
 
+//go:generate mockgen -destination=mocks/token_repository.go -package=mocks
 type TokenRepository interface {
 	Save(token dtos.CreateRawTokenDTO) *errors.AppError
 	FindByToken(tokenKey string) (*entities.RawToken, *errors.AppError)

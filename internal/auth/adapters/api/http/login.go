@@ -32,6 +32,7 @@ func NewLoginRouterHandler(
 		Tags:          []string{"Auth", "Login"},
 		DefaultStatus: http.StatusOK,
 	}, func(ctx context.Context, input *dtos.LoginRequest) (*dtos.LoginResponse, error) {
+
 		token, err := loginUseCase.Execute(
 			ctx, dtos.LoginInputDTO{
 				Username: input.Body.Username,

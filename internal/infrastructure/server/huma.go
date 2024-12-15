@@ -43,27 +43,3 @@ func NewHumaServer(
 	api.UseMiddleware(middlewares.NewAuthTokenMiddleware(api, tokenService))
 	return api
 }
-
-// Start inicia el servidor HTTP.
-// ApiWebServer modificat
-// func (a *ApiWebServer) Start() {
-// 	log.Println("Starting ApiWebServer...")
-// 	a.server.Start() // Assegura't que el servidor web s'inicia en una goroutine separada
-// }
-
-// // RegisterHooks afegeix els hooks d'inici i aturada per ApiWebServer.
-// func (a *ApiWebServer) RegisterHooks(lifecycle fx.Lifecycle) {
-// 	lifecycle.Append(
-// 		fx.Hook{
-// 			OnStart: func(ctx context.Context) error {
-// 				go a.Start()
-// 				return nil
-// 			},
-// 			OnStop: func(ctx context.Context) error {
-// 				log.Println("Shutting down ApiWebServer...")
-// 				//return a.server.Shutdown(ctx)
-// 				return nil
-// 			},
-// 		},
-// 	)
-// }

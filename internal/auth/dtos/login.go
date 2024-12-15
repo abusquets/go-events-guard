@@ -3,8 +3,8 @@ package dtos
 import "eventsguard/internal/auth/domain/entities"
 
 type LoginInputDTO struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" minLength:"1"`
+	Password string `json:"password" minLength:"1"`
 }
 
 type LoginRequest struct {

@@ -13,6 +13,8 @@ import (
 	"net/http"
 )
 
+const invalidCredentialsError = "Invalid username/password or user doesn't exist"
+
 type loginUseCase struct {
 	userService  core_services_ports.UserService
 	tokenService auth_services_ports.TokenService
@@ -37,34 +39,26 @@ func (u loginUseCase) Execute(
 ) (token *entities.Token, error *errors.AppError) {
 	user, error := u.userService.GetUserByEmail(ctx, data.Username)
 
-	if error != nil {
+	if error != nil || user == nil {
 		if error.Code == http.StatusNotFound {
-			u.logger.Debug("User not found")
-			return nil, errors.NewValidationError(
-				"Invalid username/password or user doesn't exist",
+			return nil, errors.NewAuthError(
+				invalidCredentialsError,
 			)
 		}
 		return nil, error
 	}
 
-	if user == nil {
-		u.logger.Debug("User not found")
-		return nil, errors.NewValidationError(
-			"Invalid username/password or user doesn't exist",
-		)
-	}
-
 	if !user.VerifyPassword(data.Password) {
 		u.logger.Debug("Invalid password")
-		return nil, errors.NewValidationError(
-			"Invalid username/password or user doesn't exist",
+		return nil, errors.NewAuthError(
+			invalidCredentialsError,
 		)
 	}
 
 	if !user.IsActive {
 		u.logger.Debug("User is not active")
-		return nil, errors.NewValidationError(
-			"Invalid username/password or user doesn't exist",
+		return nil, errors.NewAuthError(
+			invalidCredentialsError,
 		)
 	}
 

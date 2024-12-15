@@ -14,7 +14,6 @@ func NewSignalsMiddleware(
 	return func(ctx huma.Context, next func(huma.Context)) {
 
 		defer func() {
-			// fmt.Println
 			fmt.Println("SignalsMiddleware", ctx.URL().Path)
 			asignalsBus.ProcessQueue()
 		}()

@@ -5,16 +5,6 @@
 root = "."
 tmp_dir = "tmp"
 
-# [build]
-# # Just plain old shell command. You could use `make` as well.
-# cmd = "go build -gcflags='all=-N -l' -o ./tmp/main ./cmd"
-# # Binary file yields from `cmd`.
-# bin = "tmp/main"
-# args_bin = ["runserver"]
-# # Customize binary.
-# full_bin = "dlv exec --accept-multiclient --log --headless --continue --listen :2345 --api-version 2 ./tmp/main runserver"
-# # Watch these filename extensions.
-# include_ext = ["go", "tpl", "tmpl", "html"]
 
 [build]
   bin = "./tmp/main"

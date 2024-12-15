@@ -46,7 +46,7 @@ func TestUnmarshalBSONValue(t *testing.T) {
 	assert.Equal(t, objectID.Hex(), id.String(), "ID should match the original ObjectID hex value")
 }
 
-func TestUnmarshalBSONValue_InvalidType(t *testing.T) {
+func TestUnmarshalBSONValueInvalidType(t *testing.T) {
 	// Generate a new ObjectID
 	objectID := primitive.NewObjectID()
 	id := ID("")

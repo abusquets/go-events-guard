@@ -19,11 +19,9 @@ type webServer struct {
 	server *http.Server
 }
 
-// NewMuxServer inicialitza un nou servidor amb el mux.
 func NewMuxServer(cfg *config.AppConfig) WebServer {
 	mux := http.NewServeMux()
 
-	// Afegim una ruta de salut
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			w.WriteHeader(http.StatusOK)
@@ -33,9 +31,8 @@ func NewMuxServer(cfg *config.AppConfig) WebServer {
 		}
 	})
 
-	// Configuració del servidor HTTP
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:4200"}, // Ajusta això a l'URL del teu frontend
+		AllowedOrigins:   []string{"http://localhost:4200"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -45,7 +42,6 @@ func NewMuxServer(cfg *config.AppConfig) WebServer {
 
 	address := fmt.Sprintf(":%d", cfg.ServerPort)
 
-	// Cream el servidor HTTP amb un handler per CORS
 	httpServer := &http.Server{
 		Addr:    address,
 		Handler: c.Handler(mux),
@@ -58,7 +54,6 @@ func NewMuxServer(cfg *config.AppConfig) WebServer {
 	}
 }
 
-// Start inicia el servidor HTTP.
 func (s *webServer) Start() {
 	log.Printf("Starting server on %s\n", s.server.Addr)
 	if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -66,13 +61,11 @@ func (s *webServer) Start() {
 	}
 }
 
-// Shutdown tanca el servidor HTTP.
 func (s *webServer) Shutdown(ctx context.Context) error {
 	log.Println("Shutting down the server gracefully...")
 	return s.server.Shutdown(ctx)
 }
 
-// GetMux retorna el ServeMux del servidor.
 func (s *webServer) GetMux() *http.ServeMux {
 	return s.mux
 }

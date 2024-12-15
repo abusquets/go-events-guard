@@ -6,7 +6,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// User struct represents a user with an ID and its fields
 type User struct {
 	ID        entities.ID   `json:"id,omitempty" bson:"_id,omitempty" validate:"required"`
 	Email     string        `json:"email" validate:"required,email"`
@@ -24,7 +23,7 @@ func (u *User) EncryptPassword() error {
 	if err != nil {
 		return err
 	}
-	u.Password = string(hashedPassword) // Guarda el hash de la contrasenya
+	u.Password = string(hashedPassword)
 	return nil
 }
 

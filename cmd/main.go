@@ -22,7 +22,6 @@ func NewAllCommands(
 	userCommands []cli.Command,
 	migrationCommands []cli.Command,
 ) []cli.Command {
-	// Combina les comandes d'usuari i migració en una sola llista
 	return append(userCommands, migrationCommands...)
 }
 

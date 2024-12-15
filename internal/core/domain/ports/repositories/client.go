@@ -16,7 +16,6 @@ type ClientQuery struct {
 
 type ClientRepository interface {
 	GetByID(ctx context.Context, ID string) (*entities.Client, *errors.AppError)
-	GetByEmail(ctx context.Context, Email string) (*entities.Client, *errors.AppError)
 	Create(ctx context.Context, clientData dtos.CreateClientInput) (client *entities.Client, error *errors.AppError)
 	List(ctx context.Context, query ClientQuery) (*pagination.PaginatedResult[entities.Client], *errors.AppError)
 	UpdatePartialClient(

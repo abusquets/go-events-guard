@@ -17,27 +17,23 @@ import (
 type clientService struct {
 	clientRepository core_repository_ports.ClientRepository
 	logger           mylog.Logger
-	asignalsBus      signals.SignalsBus
+	signalsBus       signals.SignalsBus
 }
 
 func NewClientService(
 	cfg *config.AppConfig,
 	clientRepository core_repository_ports.ClientRepository,
-	asignalsBus signals.SignalsBus,
+	signalsBus signals.SignalsBus,
 ) core_service_ports.ClientService {
 	return clientService{
 		clientRepository: clientRepository,
 		logger:           mylog.GetLogger(),
-		asignalsBus:      asignalsBus,
+		signalsBus:       signalsBus,
 	}
 }
 
 func (us clientService) CreateClient(ctx context.Context, clientData dtos.CreateClientInput) (*entities.Client, *errors.AppError) {
 	return us.clientRepository.Create(ctx, clientData)
-}
-
-func (us clientService) GetClientByEmail(ctx context.Context, Email string) (*entities.Client, *errors.AppError) {
-	return us.clientRepository.GetByEmail(ctx, Email)
 }
 
 func (us clientService) GetClientByID(ctx context.Context, ID string) (*entities.Client, *errors.AppError) {
@@ -63,7 +59,7 @@ func (us clientService) UpdatePartialClient(
 	// }
 	client, error := us.clientRepository.UpdatePartialClient(ctx, ID, clientData)
 	if error == nil {
-		us.asignalsBus.Emit("client:updated", client.ID)
+		us.signalsBus.Emit("client:updated", client.ID)
 	}
 	return client, error
 }

@@ -6,11 +6,11 @@ import (
 
 var Module = fx.Options(
 	fx.Provide(
-		NewEventRouterHandler,
+		NewInboundEventRouterHandler,
 	),
 	fx.Invoke(
 		func(
-			eventRouterHandler *EventRouterHandler,
+			eventRouterHandler *InboundEventRouterHandler,
 		) {
 		},
 	),

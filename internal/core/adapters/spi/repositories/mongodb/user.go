@@ -11,7 +11,6 @@ import (
 	"eventsguard/internal/utils/dtos/pagination"
 	"fmt"
 	"strings"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,11 +30,6 @@ func NewUserRepository(client *mongo.Client, config *config.AppConfig) repositor
 }
 
 func (ur *userRepository) GetByID(ctx context.Context, ID string) (*entities.User, *errors.AppError) {
-	// Crear un context amb timeout per evitar bloquejos
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	// Convertir l'ID de tipus string a primitive.ObjectID
 	objectID, err := primitive.ObjectIDFromHex(ID)
 	if err != nil {
 		ur.logger.ErrorWithErr("Invalid ID format", err)
@@ -45,7 +39,6 @@ func (ur *userRepository) GetByID(ctx context.Context, ID string) (*entities.Use
 	ur.logger.Info(fmt.Sprintf("Querying user with filter: %+v", bson.M{"_id": objectID}))
 
 	var user entities.User
-	// Executar la consulta
 	err = ur.userCollection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -68,13 +61,11 @@ func (ur *userRepository) GetByEmail(ctx context.Context, email string) (*entiti
 		if err == mongo.ErrNoDocuments {
 			return nil, errors.NewNotFoundError("User  not found")
 		}
-		// Log the error and the query for debugging
 		ur.logger.ErrorWithErr("Error finding user", err)
 		ur.logger.Info(fmt.Sprintf("Query: %+v", bson.M{"email": email}))
 		return nil, errors.NewUnexpectedError("Error retrieving user")
 	}
 
-	// Log the found user for debugging
 	ur.logger.Info(fmt.Sprintf("Found user: %+v", user))
 
 	return &user, nil
@@ -128,7 +119,6 @@ func (ur *userRepository) List(ctx context.Context, query repository_ports.UserQ
 	}
 	filter := bson.M{}
 	if query.Search != nil && *query.Search != "" {
-		// Afegim un filtre amb `$or` per cercar en `firstName`, `lastName` i `email`
 		filter = bson.M{
 			"$or": []bson.M{
 				{"first_name": bson.M{"$regex": *query.Search, "$options": "i"}},
@@ -186,7 +176,6 @@ func (ur *userRepository) UpdatePartialUser(
 		return nil, errors.NewValidationError("No data provided for update")
 	}
 
-	// Construir els camps d'update
 	updateFields := bson.M{}
 	if userData.FirstName.Valid {
 		updateFields["first_name"] = userData.FirstName.String
@@ -201,7 +190,6 @@ func (ur *userRepository) UpdatePartialUser(
 		updateFields["is_admin"] = *userData.IsAdmin
 	}
 
-	// Afegir l'actualització de clients si s'ha proporcionat
 	if userData.Clients != nil {
 		updateFields["clients"] = userData.Clients
 	}
@@ -217,7 +205,6 @@ func (ur *userRepository) UpdatePartialUser(
 		return nil, errors.NewValidationError("Invalid ID format")
 	}
 
-	// Executar l'update
 	ur.logger.Debug("Executant UpdateOne a MongoDB")
 	_, err = ur.userCollection.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$set": updateFields})
 	if err != nil {
@@ -245,7 +232,6 @@ func (ur *userRepository) UpdatePartialUser(
 // 	//         return errors.NewValidationError("Invalid client ID format")
 // 	//     }
 
-// 	//     // Comprova si el client existeix
 // 	//     var client entities.Client
 // 	//     err = clientCollection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&client)
 // 	//     if err != nil {

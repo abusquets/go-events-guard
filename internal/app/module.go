@@ -4,6 +4,7 @@ package app
 import (
 	"eventsguard/internal/auth"
 	"eventsguard/internal/core"
+	"eventsguard/internal/inbound_events"
 	"eventsguard/internal/infrastructure"
 	"eventsguard/internal/infrastructure/config"
 	"eventsguard/internal/infrastructure/migrations"
@@ -16,5 +17,6 @@ var Module = fx.Module("app",
 	infrastructure.Module,
 	core.Module,
 	auth.Module,
+	inbound_events.Module,
 	migrations.Module,
 )
